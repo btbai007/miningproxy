@@ -1,0 +1,15 @@
+//本地监听
+listen{
+    network="tcp4"
+	address=":6666"
+}
+
+//远程服务器
+server{
+    network="tcp4"
+	address="8.210.172.90:1433"
+}
+
+log{
+    data=false
+}

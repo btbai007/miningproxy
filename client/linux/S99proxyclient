@@ -1,0 +1,37 @@
+#!/bin/sh /etc/rc.common
+USE_PROCD=1
+START=99
+STOP=01
+cmd="/root/proxyclient/proxyclient"
+name="proxyclient"
+pid_file="/var/run/${name}.pid"
+start_service() {
+    echo "Starting ${name}"
+    procd_open_instance
+    procd_set_param command ${cmd}
+    procd_set_param respawn             # respawn automatically if something died
+    procd_set_param stdout 1            # forward stdout of the command to logd
+    procd_set_param stderr 1            # same for stderr
+    procd_set_param pidfile ${pid_file} # write a pid file on instance start and remove it on stop
+    procd_close_instance
+    echo "${name} has been started"
+}
+stop_service() {
+    echo "Stopping ${name}"
+}
+EXTRA_COMMANDS="status"
+EXTRA_HELP="        status  Print the service status"
+get_pid() {
+    cat "${pid_file}"
+}
+is_running() {
+    [ -f "${pid_file}" ] && ps | grep -v grep | grep $(get_pid) >/dev/null 2>&1
+}
+status() {
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+}
